@@ -1,28 +1,57 @@
 package ru.personalarea.controller
 
-import org.springframework.format.annotation.DateTimeFormat
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
-import ru.personalarea.model.Transaction
+import org.springframework.data.domain.Page
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatus.OK
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.*
+import ru.personalarea.model.entity.TransactionDto
+import ru.personalarea.model.entity.TransactionPage
+import ru.personalarea.model.entity.TransactionSearchCriteria
 import ru.personalarea.repository.TransactionRepository
-import java.time.LocalDate
+import ru.personalarea.service.TransactionService
 import java.time.LocalDateTime
-import java.util.*
+import java.time.LocalDateTime.now
 
 
 @RestController
 class TransactionController(
-    private val repo: TransactionRepository
+    private val repo: TransactionRepository,
+    private val transactionService: TransactionService
 ) {
-    @PostMapping("/api/transactions", produces = ["application/json;charset=utf-8"],)
+    @PostMapping("/api/transactions", produces = ["application/json;charset=utf-8"])
     fun getTransactions(
         @RequestParam("dateBegin")
         dateBegin: LocalDateTime,
         @RequestParam("dateEnd")
         dateEnd: LocalDateTime
-    ): List<Transaction> = repo.findAllByCreatedAtBetween(dateBegin, dateEnd)
+    ): List<TransactionDto> = repo.findAllByTrTimeBetween(dateBegin, dateEnd)
 
+
+    @GetMapping("/client/{companyId}/transactions", produces = ["application/json;charset=utf-8"])
+    fun getTransactionsByCompanyAndPeriod(
+        @PathVariable
+        companyId: Int,
+        dateBeginParam: LocalDateTime?,
+        dateEndParam: LocalDateTime?
+    ): List<TransactionDto> {
+        val dateBegin = dateBeginParam ?: now().minusDays(now().dayOfMonth.toLong())
+        val dateEnd = now()
+
+        return repo.findAllByCompanyIdAndCreatedAtBetween(companyId, dateBegin, dateEnd)
+    }
+
+    @GetMapping("/transactions", produces = ["application/json;charset=utf-8"])
+    fun getTransactions(
+        transactionPage: TransactionPage,
+        transactionSearchCriteria: TransactionSearchCriteria
+    ): ResponseEntity<Page<TransactionDto>> {
+        val responseHeaders = HttpHeaders()
+        responseHeaders.set("Access-Control-Allow-Origin", "http://localhost:3001")
+
+        return ResponseEntity.ok().headers(responseHeaders).body(transactionService.getTransactions(transactionPage, transactionSearchCriteria))
+    }
 
 
 //    @GetMapping("/companies/{companyId}/transactions", produces = ["application/json;charset=utf-8"])

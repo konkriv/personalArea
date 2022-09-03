@@ -1,12 +1,12 @@
 package ru.personalarea.repository
 
 import org.springframework.data.repository.CrudRepository
-import ru.personalarea.model.Transaction
+import ru.personalarea.model.entity.TransactionDto
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-interface TransactionRepository: CrudRepository <Transaction, Long> {
-    fun findAllByCompanyIdAndCreatedAtBetween(companyId: Int, dateBegin: LocalDate, dateEnd: LocalDate) : List <Transaction>
+interface TransactionRepository: CrudRepository <TransactionDto, Long> {
+    fun findAllByCompanyIdAndCreatedAtBetween(companyId: Int, dateBegin: LocalDateTime, dateEnd: LocalDateTime) : List <TransactionDto>
 
-    fun findAllByCreatedAtBetween(dateBegin: LocalDateTime, dateEnd: LocalDateTime) : List <Transaction>
+    fun findAllByTrTimeBetween(dateBegin: LocalDateTime, dateEnd: LocalDateTime) : List <TransactionDto>
 }

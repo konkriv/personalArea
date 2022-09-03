@@ -1,9 +1,9 @@
 package ru.personalarea.repository
 
 import org.springframework.data.repository.CrudRepository
-import ru.personalarea.model.Session
+import ru.personalarea.model.entity.SessionDto
 
-interface SessionRepository : CrudRepository<Session, Long> {
-    fun findSessionByUrl(url: String): Session
-    fun findSessionByLogin(login: String): Session
+interface SessionRepository : CrudRepository<SessionDto, Long> {
+    fun findSessionByUrl(url: String): SessionDto
+    fun findSessionByLogin(login: String): SessionDto
 }
